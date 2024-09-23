@@ -3,6 +3,10 @@
 #include <fstream>
 #include "../include/screengrabber.h"
 
+#ifndef PW_RENDERFULLCONTENT
+#define PW_RENDERFULLCONTENT 0x00000002
+#endif
+
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
         case WM_DESTROY:
@@ -33,22 +37,28 @@ bool ScreenGrabber::initialiseGrabber(LPCSTR window_title) {
 }
 
 HWND ScreenGrabber::createSneakyOverlay() {
-    const char CLASS_NAME[] = "SneakyOverlay";
+    const wchar_t CLASS_NAME[] = L"SneakyOverlay";
 
-    WNDCLASS wc = { };
+    WNDCLASSW wc = { };
     wc.lpfnWndProc = WindowProc;
     wc.hInstance = GetModuleHandle(NULL);
     wc.lpszClassName = CLASS_NAME;
 
-    RegisterClass(&wc);
+    if (!RegisterClassW(&wc)) {
+        DWORD error = GetLastError();
+        if (error != ERROR_CLASS_ALREADY_EXISTS) {
+            std::cout << "RegisterClass failed with error: " << error << std::endl;
+            return nullptr;
+        }
+    }
 
     RECT target_rect;
     GetWindowRect(hwnd, &target_rect);
 
-    overlay_hwnd = CreateWindowEx(
+    overlay_hwnd = CreateWindowExW(
         WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
         CLASS_NAME,
-        "Overlay",
+        L"Overlay",
         WS_POPUP,
         target_rect.left, target_rect.top,
         target_rect.right - target_rect.left,
@@ -59,17 +69,22 @@ HWND ScreenGrabber::createSneakyOverlay() {
         NULL
     );
 
-    SetLayeredWindowAttributes(overlay_hwnd, 0, 255, LWA_ALPHA);
+
+    //SetLayeredWindowAttributes(overlay_hwnd, 0, 255, LWA_ALPHA);
     SetWindowPos(overlay_hwnd, HWND_TOPMOST, target_rect.left, target_rect.top, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
 
     ShowWindow(overlay_hwnd, SW_SHOW);
+    if (!overlay_hwnd) {
+        std::cout << "Overlay hwnd is nullptr." << std::endl;
+        return nullptr;
+    }
     return overlay_hwnd;
 }
 
 
 HBITMAP ScreenGrabber::grabSneakyOverlay() {
     RECT target_rect;
-    GetWindowRect(hwnd, &target_rect);
+    GetWindowRect(overlay_hwnd, &target_rect);
     int width = target_rect.right - target_rect.left;
     int height = target_rect.bottom - target_rect.top;
 
@@ -92,6 +107,39 @@ HBITMAP ScreenGrabber::grabSneakyOverlay() {
     ReleaseDC(NULL, hdc_screen);
 
     std::cout << "Screen successfully captured via sneaky overlay. Returning bmp now." << std::endl;
+    return hbm_capture;
+}
+
+HBITMAP ScreenGrabber::grabPrintWindow() {
+    RECT window_rect;
+    if (!GetWindowRect(hwnd, &window_rect)) {
+        std::cout << "Failed to get window rectangle." << std::endl;
+        return nullptr;
+    }
+    int width = window_rect.right - window_rect.left;
+    int height = window_rect.bottom - window_rect.top;
+
+    // Create a compatible DC and bitmap
+    HDC hdc_screen = GetDC(NULL);
+    HDC hdc_mem_dc = CreateCompatibleDC(hdc_screen);
+    HBITMAP hbm_capture = CreateCompatibleBitmap(hdc_screen, width, height);
+    SelectObject(hdc_mem_dc, hbm_capture);
+
+    // Use PrintWindow to capture the window's content
+    BOOL result = PrintWindow(hwnd, hdc_mem_dc, PW_RENDERFULLCONTENT);
+    if (!result) {
+        std::cout << "PrintWindow failed." << std::endl;
+        DeleteObject(hbm_capture);
+        DeleteDC(hdc_mem_dc);
+        ReleaseDC(NULL, hdc_screen);
+        return nullptr;
+    }
+
+    // Clean up
+    DeleteDC(hdc_mem_dc);
+    ReleaseDC(NULL, hdc_screen);
+
+    std::cout << "Screen successfully captured using PrintWindow." << std::endl;
     return hbm_capture;
 }
 

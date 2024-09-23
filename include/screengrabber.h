@@ -20,6 +20,7 @@ class ScreenGrabber {
 
     // Screen grabbing methods
     HBITMAP grabSneakyOverlay();
+    HBITMAP grabPrintWindow(); // CURRENT BEST + WORKING GRAB METHOD
     HBITMAP grabScreenViaDesktop();
     HBITMAP grabScreenViaParent();
     HBITMAP grabScreen();
