@@ -5,6 +5,7 @@ project(AutoSearch)
 set(SOURCES
     src/testing.cpp
     src/screengrabber.cpp
+    src/utils.cpp
 )
 
 add_executable(testing ${SOURCES})
