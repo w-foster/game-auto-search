@@ -57,7 +57,7 @@ int main() {
     }
 
     
-    std::string bmp_filename = "AS_bmp_";
+    std::string bmp_filename = "../bitmaps/AS_bmp_";
     bmp_filename += getCurrentTimestamp();
     bmp_filename += ".bmp";
     std::cout << bmp_filename << std::endl;
@@ -67,6 +67,23 @@ int main() {
         std::cout << "Saving bitmap failed. Manually deleting HBITMAP obj." << std::endl;
         DeleteObject(hbm_fullscreen);
     }
+
+    // Sending a left mouse click at coordinates (x, y)
+    HWND curr_hwnd = screen_grabber.getHWND();
+    RECT window_rect;
+    if (!GetClientRect(curr_hwnd, &window_rect)) {
+        std::cout << "Failed to get window rectangle." << std::endl;
+        return -1;
+    }
+    int width = window_rect.right - window_rect.left;
+    int height = window_rect.bottom - window_rect.top;
+
+    int x = width / 2;
+    int y = height / 2;
+    std::cout << std::endl << "Width: " << width << ";   Height: " << height << std::endl << "X: " << x << ";   y: " << y;
+    LPARAM lParam = MAKELPARAM(x, y);
+    SendMessage(curr_hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
+    SendMessage(curr_hwnd, WM_LBUTTONUP, 0, lParam);
 
     return 0;
 }

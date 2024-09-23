@@ -36,6 +36,10 @@ bool ScreenGrabber::initialiseGrabber(LPCSTR window_title) {
     return true;
 }
 
+HWND ScreenGrabber::getHWND() {
+    return hwnd;
+}
+
 HWND ScreenGrabber::createSneakyOverlay() {
     const wchar_t CLASS_NAME[] = L"SneakyOverlay";
 
@@ -111,13 +115,13 @@ HBITMAP ScreenGrabber::grabSneakyOverlay() {
 }
 
 HBITMAP ScreenGrabber::grabPrintWindow() {
-    RECT window_rect;
-    if (!GetWindowRect(hwnd, &window_rect)) {
-        std::cout << "Failed to get window rectangle." << std::endl;
+    RECT client_rect;
+    if (!GetClientRect(hwnd, &client_rect)) {
+        std::cout << "Failed to get client rectangle." << std::endl;
         return nullptr;
     }
-    int width = window_rect.right - window_rect.left;
-    int height = window_rect.bottom - window_rect.top;
+    int width = client_rect.right - client_rect.left;
+    int height = client_rect.bottom - client_rect.top;
 
     // Create a compatible DC and bitmap
     HDC hdc_screen = GetDC(NULL);

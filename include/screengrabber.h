@@ -7,7 +7,7 @@ class ScreenGrabber {
     HWND hwnd;
     HWND overlay_hwnd;
     
-    public:
+public:
     // Public attributes
     
     // Constructor and destructor
@@ -17,6 +17,9 @@ class ScreenGrabber {
     // Initialisation methods
     bool initialiseGrabber(LPCSTR window_title);
     HWND createSneakyOverlay();
+
+    // Getter methods
+    HWND getHWND();
 
     // Screen grabbing methods
     HBITMAP grabSneakyOverlay();
