@@ -20,7 +20,20 @@ int main() {
     //     std::cout << "HBITMAP of value nullptr deleted." << std::endl;
     // }
     // 
-    HBITMAP hbm_fullscreen = screen_grabber.grabScreenViaDesktop();
+    // HBITMAP hbm_fullscreen = screen_grabber.grabScreenViaDesktop();
+    // if (!hbm_fullscreen) {
+    //     DeleteObject(hbm_fullscreen);
+    //     std::cout << "HBITMAP of value nullptr deleted." << std::endl;
+    // }
+    // HBITMAP hbm_fullscreen = screen_grabber.grabScreenViaParent();
+    // if (!hbm_fullscreen) {
+    //     DeleteObject(hbm_fullscreen);
+    //     std::cout << "HBITMAP of value nullptr deleted." << std::endl;
+    // }
+    if (!screen_grabber.createSneakyOverlay()) {
+        std::cout << "Failed to create sneaky overlay." << std::endl;
+    }
+    HBITMAP hbm_fullscreen = screen_grabber.grabSneakyOverlay();
     if (!hbm_fullscreen) {
         DeleteObject(hbm_fullscreen);
         std::cout << "HBITMAP of value nullptr deleted." << std::endl;

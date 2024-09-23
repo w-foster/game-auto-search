@@ -3,8 +3,23 @@
 #include <fstream>
 #include "../include/screengrabber.h"
 
+LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
+    switch (uMsg) {
+        case WM_DESTROY:
+            PostQuitMessage(0);
+            return 0;
+    }
+    return DefWindowProc(hwnd, uMsg, wParam, lParam);
+}
+
+
 ScreenGrabber::ScreenGrabber() {}
-ScreenGrabber::~ScreenGrabber() {}
+ScreenGrabber::~ScreenGrabber() {
+    if (overlay_hwnd) {
+        DestroyWindow(overlay_hwnd);
+    }
+}
+
 
 bool ScreenGrabber::initialiseGrabber(LPCSTR window_title) {
     hwnd = FindWindowA(NULL, window_title);
@@ -15,6 +30,69 @@ bool ScreenGrabber::initialiseGrabber(LPCSTR window_title) {
     }
     std::cout << "Window successfully found." << std::endl;
     return true;
+}
+
+HWND ScreenGrabber::createSneakyOverlay() {
+    const char CLASS_NAME[] = "SneakyOverlay";
+
+    WNDCLASS wc = { };
+    wc.lpfnWndProc = WindowProc;
+    wc.hInstance = GetModuleHandle(NULL);
+    wc.lpszClassName = CLASS_NAME;
+
+    RegisterClass(&wc);
+
+    RECT target_rect;
+    GetWindowRect(hwnd, &target_rect);
+
+    overlay_hwnd = CreateWindowEx(
+        WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
+        CLASS_NAME,
+        "Overlay",
+        WS_POPUP,
+        target_rect.left, target_rect.top,
+        target_rect.right - target_rect.left,
+        target_rect.bottom - target_rect.top,
+        NULL,
+        NULL,
+        GetModuleHandle(NULL),
+        NULL
+    );
+
+    SetLayeredWindowAttributes(overlay_hwnd, 0, 255, LWA_ALPHA);
+    SetWindowPos(overlay_hwnd, HWND_TOPMOST, target_rect.left, target_rect.top, 0, 0, SWP_NOSIZE | SWP_NOACTIVATE);
+
+    ShowWindow(overlay_hwnd, SW_SHOW);
+    return overlay_hwnd;
+}
+
+
+HBITMAP ScreenGrabber::grabSneakyOverlay() {
+    RECT target_rect;
+    GetWindowRect(hwnd, &target_rect);
+    int width = target_rect.right - target_rect.left;
+    int height = target_rect.bottom - target_rect.top;
+
+    HDC hdc_screen = GetDC(NULL);
+    HDC hdc_mem_dc = CreateCompatibleDC(hdc_screen);
+
+    HBITMAP hbm_capture = CreateCompatibleBitmap(hdc_screen, width, height);
+    SelectObject(hdc_mem_dc, hbm_capture);
+
+    // Capture the area behind the overlay
+    if (!BitBlt(hdc_mem_dc, 0, 0, width, height, hdc_screen, target_rect.left, target_rect.top, SRCCOPY)) {
+        std::cout << "BitBlt operation failed for sneaky overlay." << std::endl;
+        DeleteObject(hbm_capture);
+        DeleteDC(hdc_mem_dc);
+        ReleaseDC(NULL, hdc_screen);
+        return nullptr;
+    }
+
+    DeleteDC(hdc_mem_dc);
+    ReleaseDC(NULL, hdc_screen);
+
+    std::cout << "Screen successfully captured via sneaky overlay. Returning bmp now." << std::endl;
+    return hbm_capture;
 }
 
 HBITMAP ScreenGrabber::grabScreenViaDesktop() {
@@ -52,6 +130,57 @@ HBITMAP ScreenGrabber::grabScreenViaDesktop() {
     ReleaseDC(hwnd, hdc_window);
 
     std::cout << "Screen successfully grabbed (via desktop). Returning now." << std::endl;
+    return hbm_screen;
+}
+
+HBITMAP ScreenGrabber::grabScreenViaParent() {
+    HWND parent_hwnd = GetParent(hwnd);
+    if (!parent_hwnd) {
+        std::cout << "Failed to get parent window." << std::endl;
+        return nullptr;
+    }
+
+    RECT parent_rect;
+    if (!GetWindowRect(parent_hwnd, &parent_rect)) {
+        std::cout << "Failed to get parent window rectangle." << std::endl;
+        return nullptr;
+    }
+
+    RECT child_rect;
+    if (!GetWindowRect(hwnd, &child_rect)) {
+        std::cout << "Failed to get child window rectangle." << std::endl;
+        return nullptr;
+    }
+
+    HDC hdc_parent = GetDC(parent_hwnd);
+    HDC hdc_mem_dc = CreateCompatibleDC(hdc_parent);
+
+    int width = child_rect.right - child_rect.left;
+    int height = child_rect.bottom - child_rect.top;
+    HBITMAP hbm_screen = CreateCompatibleBitmap(hdc_parent, width, height);
+
+    if (!hbm_screen) {
+        std::cout << "Error creating bitmap." << std::endl;
+        DeleteObject(hbm_screen);
+        DeleteDC(hdc_mem_dc);
+        ReleaseDC(parent_hwnd, hdc_parent);
+        return nullptr;
+    }
+
+    SelectObject(hdc_mem_dc, hbm_screen);
+
+    if (!BitBlt(hdc_mem_dc, 0, 0, width, height, hdc_parent, child_rect.left, child_rect.top, SRCCOPY)) {
+        std::cout << "BitBlt operation failed." << std::endl;
+        DeleteObject(hbm_screen);
+        DeleteDC(hdc_mem_dc);
+        ReleaseDC(parent_hwnd, hdc_parent);
+        return nullptr;
+    }
+
+    DeleteDC(hdc_mem_dc);
+    ReleaseDC(parent_hwnd, hdc_parent);
+
+    std::cout << "Screen successfully grabbed via parent handle. Returning now." << std::endl;
     return hbm_screen;
 }
 
@@ -143,4 +272,6 @@ bool ScreenGrabber::saveScreenGrab(HBITMAP &hbm_screen, std::string filename) {
     DeleteObject(hbm_screen);
     return true;
 }
+
+
 
