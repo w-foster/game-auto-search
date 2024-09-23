@@ -63,6 +63,8 @@ int main() {
     std::cout << bmp_filename << std::endl;
     if (screen_grabber.saveScreenGrab(hbm_fullscreen, bmp_filename)) {
         std::cout << "Bitmap successfully saved. Deleting HBITMAP object now." << std::endl;
+    } else {
+        std::cout << "Saving bitmap failed. Manually deleting HBITMAP obj." << std::endl;
         DeleteObject(hbm_fullscreen);
     }
 
