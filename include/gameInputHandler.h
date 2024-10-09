@@ -1,12 +1,15 @@
 #include <iostream>
 #include <windows.h>
+#include <vector>
+#include <unordered_map>
 
-class gameInputHandler {
+class GameInputHandler {
     HWND hwnd;
+    std::unordered_map<std::string, std::vector<int>> HUD_object_placements;
 
 public:
-    gameInputHandler();
-    ~gameInputHandler();
+    GameInputHandler();
+    ~GameInputHandler();
 
     bool initialiseInputHandler(LPCSTR window_title);
 

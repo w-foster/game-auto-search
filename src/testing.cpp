@@ -1,7 +1,8 @@
 #include <iostream>
 #include <windows.h>
 #include <string>
-#include "../include/screengrabber.h"
+#include "../include/ScreenGrabber.h"
+#include "../include/GameInputHandler.h"
 #include "../include/utils.h"
 
 int main() {
@@ -69,21 +70,32 @@ int main() {
     }
 
     // Sending a left mouse click at coordinates (x, y)
-    HWND curr_hwnd = screen_grabber.getHWND();
-    RECT window_rect;
-    if (!GetClientRect(curr_hwnd, &window_rect)) {
-        std::cout << "Failed to get window rectangle." << std::endl;
+    // HWND curr_hwnd = screen_grabber.getHWND();
+    // RECT window_rect;
+    // if (!GetClientRect(curr_hwnd, &window_rect)) {
+    //     std::cout << "Failed to get window rectangle." << std::endl;
+    //     return -1;
+    // }
+    // int width = window_rect.right - window_rect.left;
+    // int height = window_rect.bottom - window_rect.top;
+
+    // int x = width / 2;
+    // int y = height / 2;
+    // std::cout << std::endl << "Width: " << width << ";   Height: " << height << std::endl << "X: " << x << ";   y: " << y;
+    // LPARAM lParam = MAKELPARAM(x, y);
+    // SendMessage(curr_hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
+    // SendMessage(curr_hwnd, WM_LBUTTONUP, 0, lParam);
+
+    GameInputHandler in_handler;
+    if (!in_handler.initialiseInputHandler(window_title)) {
+        std::cout << "Failed to initialse game input handler obj..." << std::endl;
         return -1;
     }
-    int width = window_rect.right - window_rect.left;
-    int height = window_rect.bottom - window_rect.top;
+    if (!in_handler.tryClickHUD("NEXT")) {
+        std::cout << "Faield to click HUD object..." << std::endl;
+        return -1;
+    }
 
-    int x = width / 2;
-    int y = height / 2;
-    std::cout << std::endl << "Width: " << width << ";   Height: " << height << std::endl << "X: " << x << ";   y: " << y;
-    LPARAM lParam = MAKELPARAM(x, y);
-    SendMessage(curr_hwnd, WM_LBUTTONDOWN, MK_LBUTTON, lParam);
-    SendMessage(curr_hwnd, WM_LBUTTONUP, 0, lParam);
 
     return 0;
 }
