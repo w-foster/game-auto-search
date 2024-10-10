@@ -4,28 +4,37 @@
 #include <windows.h>
 #include <unordered_map>
 #include <cstdlib>
+#include <string>
 #include "../include/BaseProcessor.h"
 
 
 // Constructor and destructor
 BaseProcessor::BaseProcessor() 
-: curr_bmp(), base_info() {
-    regions = {
+: curr_bmp(), base_metrics(), suitable_metric_ranges(),  
+    regions{
         {"GOLD TOTAL", {4.5, 12, 10.25, 15}}, 
         {"ELIXIR TOTAL", {4.5, 12, 15, 20}}, 
         {"DARK TOTAL", {4.5, 12, 20, 24}}, 
         {"TROPHIES WIN", {4.5, 8, 26, 31}}, 
         {"TROPHIES LOSE", {4.5, 8, 34, 39}}
-    };
+    },
 
-    std::vector<std::string> ordered_region_keys = {
+    ordered_region_keys{
         "GOLD TOTAL", 
         "ELIXIR TOTAL", 
         "DARK TOTAL", 
         "TROPHIES WIN", 
         "TROPHIES LOSE"
-    };
-}
+    },
+
+    possible_metric_ranges{
+        {"GOLD TOTAL", {0, 2600000}}, 
+        {"ELIXIR TOTAL", {0, 2600000}}, 
+        {"DARK TOTAL", {0, 18000}}, 
+        {"TROPHIES WIN", {1, 59}}, 
+        {"TROPHIES LOSE", {1, 59}}
+    }
+{}
 
 BaseProcessor::~BaseProcessor() {}
 
@@ -58,8 +67,17 @@ bool BaseProcessor::preprocessBitmap(std::string transformation_type) {
     return true;
 }
 
+void BaseProcessor::setSuitableMetricRanges(int min_gold, int min_elixir, int min_dark, int min_trophies_win, int max_trophies_lose) {
+    // std::unordered_map<std::string, std::pair<int, int>> suitable_metric_ranges
+    suitable_metric_ranges["GOLD TOTAL"] = min_gold;
+    suitable_metric_ranges["ELIXIR TOTAL"] = min_elixir;
+    suitable_metric_ranges["DARK TOTAL"] = min_dark;
+    suitable_metric_ranges["TROPHIES WIN"] = min_trophies_win;
+    suitable_metric_ranges["TROPHIES LOSE"] = max_trophies_lose;
+}
+
 bool BaseProcessor::readRegion(std::string region_name) {
-    std::vector<double> region_bounds = regions[region_name];
+    std::vector<double> region_bounds = regions.at(region_name);
     for (int i = 0; i < 4; i++) {
         std::cout << region_bounds[i] << "%  ";
     }
@@ -94,14 +112,15 @@ bool BaseProcessor::readRegion(std::string region_name) {
 
     ocr.SetImage(region.data, region.cols, region.rows, 3, region.step);
 
-    char* text = ocr.GetUTF8Text();
+    std::string text = ocr.GetUTF8Text();
     std::cout << "===" << region_name << "===" << std::endl;
     std::cout << "Recognised Text: " << text << std::endl;
-    text = ocr.GetUTF8Text();
+    
+    int processed_metric = processMetricText(region_name, text);
+    std::cout << "Processed (int) metric: " << processed_metric << std::endl;
 
     // Cleanup:
     ocr.End();
-    delete[] text;
 
     return true;
 }
@@ -114,7 +133,7 @@ bool BaseProcessor::readAllMetrics() {
         }
     }
     /*
-    Alternative method, reading them in the order defined in the ordered_region_keys vector attribute:
+    Alternative method: reading them in the order defined in the ordered_region_keys vector attribute:
     for (const std::string& region_name : ordered_region_keys) {
         if (!readRegion(regions[region_name])) {
             std::cout << "BaseProcessor: readAllMetrics: reading a region failed." << std::endl;
@@ -125,4 +144,53 @@ bool BaseProcessor::readAllMetrics() {
     return true;
 }
 
+int BaseProcessor::processMetricText(std::string region_name, std::string &text) {
+    if (text.size() == 0) {
+        std::cout << "Empty text... cannot process" << std::endl;
+        return -1;
+    }
 
+    // Remove non-int chars:
+    // ints ACSII: 48 to 57 inclusive
+    int i = 0;
+    while (i < text.size()) {
+        char ch = text[i];
+        if (ch < '0' || ch > '9') {
+            text.erase(i, 1);
+        } else {
+            i++;
+        }
+    }
+
+    std::cout << "Cleaned text: " << text << std::endl;
+    if (text.size() == 0) {
+        std::cout << "Cleaned text is empty :(" << std::endl;
+        return -1;
+    }
+
+    // Check against pre-defined possible ranges:
+    int metric = std::stoi(text);
+    if (metric < possible_metric_ranges.at(region_name).first || metric > possible_metric_ranges.at(region_name).second) {
+        std::cout << "Metric outside of possible bounds." << std::endl;
+        return -1;
+    }
+
+    base_metrics[region_name] = metric;
+    return metric;
+}
+
+bool BaseProcessor::isBaseSuitable() {
+    // i < size - 1, because we will handle max trophies lose afterwards (separately)
+    for (int i = 0; i < ordered_region_keys.size() - 1; i++) {
+        std::string metric_name = ordered_region_keys[i];
+        if (base_metrics[metric_name] < suitable_metric_ranges[metric_name]) {
+            std::cout << "Base not suitable! Metric too low: " << metric_name << std::endl;
+            return false;
+        }
+    }
+    std::string trophies_lose = "TROPHIES LOSE";
+    if (base_metrics[trophies_lose] > suitable_metric_ranges[trophies_lose]) {
+        std::cout << "Base not suitable! Metric too high: " << trophies_lose << std::endl;
+    }
+    return true;
+}

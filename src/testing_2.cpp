@@ -11,21 +11,21 @@
 int main() {
     // ========= ScreenGrabber setup =========
     ScreenGrabber screen_grabber;
-    //LPCSTR window_title = "Fan Control V157 (userConfig.json)"; // Using a random window I had open for testing
     LPCSTR window_title = "Clash of Clans";
     if (!screen_grabber.initialiseGrabber(window_title)) {
         std::cout << "Failed to initialise grabber" << std::endl;
         return -1;
     }
 
-    // === Capture via a simple PrintWindow function ===
-    // === WORKS for CoC; tracks the window, AND ignores overlapping windows ===
+    // Capture via a simple PrintWindow function 
+    // WORKS for CoC; tracks the window, AND ignores overlapping windows 
     HBITMAP hbm_fullscreen = screen_grabber.grabPrintWindow();
     if (!hbm_fullscreen) {
         DeleteObject(hbm_fullscreen);
         std::cout << "HBITMAP of value nullptr deleted." << std::endl;
     }
 
+    // Save the captured bitmap
     std::string bmp_filename = "../bitmaps/AS_bmp_";
     bmp_filename += getCurrentTimestamp();
     bmp_filename += ".bmp";
@@ -35,6 +35,13 @@ int main() {
     } else {
         std::cout << "Saving bitmap failed. Manually deleting HBITMAP obj." << std::endl;
         DeleteObject(hbm_fullscreen);
+    }
+
+    //========= BaseProcessor setup =========
+    BaseProcessor base_processor;
+    if (!base_processor.updateCurrentBitmap(bmp_filename)) {
+        std::cout << "Main: Failed to update bmp in base processor." << std::endl;
+        return -1;
     }
 
     // ========= GameInputHandler setup =========
@@ -48,23 +55,32 @@ int main() {
         return -1;
     }
 
-    //========= BaseProcessor setup =========
-    BaseProcessor base_processor;
-    if (!base_processor.updateCurrentBitmap(bmp_filename)) {
-        std::cout << "Main: Failed to update bmp in base processor." << std::endl;
-        return -1;
-    }
-    // std::cout << "Trying to crop and read region: " << std::endl;
-    // if (!base_processor.cropBitmap("GOLD TOTAL")) {
-    //     std::cout << "Bitmap cropping failed." << std::endl;
-    //     return -1;
-    // }
+    
+
+    base_processor.setSuitableMetricRanges(500000, 500000);
+
     std::cout << "Trying to read all metric regions..." << std::endl;
     if (!base_processor.readAllMetrics()) {
         std::cout << "readAllMetrics failed :(" << std::endl;
         return -1;
     }
+    if (!base_processor.isBaseSuitable()) {
+        std::cout << "BASE NOT SUITABLE!" << std::endl;
+    } else {
+        std::cout << "BASE SUITABLE! YAY" << std::endl;
+    }
 
+    bool found_suitable_base = false;
+    while (!found_suitable_base) {
+        // Take and save new screengrab
+        // Update bmp in BaseProcessor
+        // Read All Metrics
+        //   if false, skip this base -- means some metrics cldnt be read
+        // Check base suitability (isBaseSuitable())
+        //   if true -- set loop flag to true!
+        //   else, use gameInputHandler to click next
+        
+    }
 
     return 0;
 }
