@@ -22,7 +22,8 @@ Class for Data Analysis:
   - (Set parameters such that bases can be found within an acceptable amount of time) <br/>
 
 Current Status: <br/>
-- Works for CoC running on Windows (11) through the Google Play Games Beta
+- Prototype is working (testing_2.cpp). Successfully finds a suitable base, based on pre-set suitability parameters!
+
 - The screengrabs are dependent on the native desktop resolution, and the CoC via Play Games seems somewhat blurry; this double-effect means that processing the images successfully will depend on, for example, the text being intelligible
   - A potential solution is 1) having the window maximised, and 2) zooming in somewhat, either i) still in a fixed position, or ii) in multiple positions, changing position if the target in-game objects/text cannot be found.
   - 2)ii) is more complex, but would allow more flexibility for the window's size.
