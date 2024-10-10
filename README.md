@@ -27,6 +27,7 @@ Check if base found:
 - Would improve on current prototype method: waiting N seconds, where N is some pre-defined constant...
 <br/>
 <br/>
+
 **Current Status:** <br/>
 - Prototype is working (testing_2.cpp). Successfully finds a suitable base, based on pre-set suitability parameters!
 
