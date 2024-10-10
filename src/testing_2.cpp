@@ -54,6 +54,16 @@ int main() {
         std::cout << "Main: Failed to update bmp in base processor." << std::endl;
         return -1;
     }
+    // std::cout << "Trying to crop and read region: " << std::endl;
+    // if (!base_processor.cropBitmap("GOLD TOTAL")) {
+    //     std::cout << "Bitmap cropping failed." << std::endl;
+    //     return -1;
+    // }
+    std::cout << "Trying to read all metric regions..." << std::endl;
+    if (!base_processor.readAllMetrics()) {
+        std::cout << "readAllMetrics failed :(" << std::endl;
+        return -1;
+    }
 
 
     return 0;

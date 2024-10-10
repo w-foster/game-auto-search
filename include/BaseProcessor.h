@@ -33,7 +33,8 @@ class BaseProcessor {
     */
 
     cv::Mat curr_bmp; // stores current bitmap as an OpenCV Matrix
-    std::unordered_map<std::string, std::vector<int>> regions;
+    std::unordered_map<std::string, std::vector<double>> regions;
+    std::vector<std::string> ordered_region_keys;
     BaseInfo base_info;
 
 public:
@@ -41,7 +42,8 @@ public:
     ~BaseProcessor();
 
     bool updateCurrentBitmap(const std::string &new_bmp_path);
-    bool preprocessBitmap(bool grayscale);
-    bool cropBitmap(std::string region_name);
+    bool preprocessBitmap(std::string transformation_type);
+    bool readRegion(std::string region_name);
+    bool readAllMetrics();
 
 };
