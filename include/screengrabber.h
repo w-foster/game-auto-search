@@ -24,6 +24,7 @@ public:
     // Screen grabbing methods
     HBITMAP grabSneakyOverlay();
     HBITMAP grabPrintWindow(); // CURRENT BEST + WORKING GRAB METHOD
+    HBITMAP cropTitleBar(HBITMAP &hbm_screen, int title_bar_height);
     HBITMAP grabScreenViaDesktop();
     HBITMAP grabScreenViaParent();
     HBITMAP grabScreen();

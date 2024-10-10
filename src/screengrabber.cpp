@@ -115,11 +115,18 @@ HBITMAP ScreenGrabber::grabSneakyOverlay() {
 }
 
 HBITMAP ScreenGrabber::grabPrintWindow() {
-    RECT client_rect;
-    if (!GetClientRect(hwnd, &client_rect)) {
-        std::cout << "Failed to get client rectangle." << std::endl;
-        return nullptr;
+
+    RECT window_rect, client_rect;
+    if (!(GetWindowRect(hwnd, &window_rect) && GetClientRect(hwnd, &client_rect))) {
+        std::cout << "Crop Title Bar: Failed to get (WindowRect && ClientRect)..." << std::endl;
     }
+    int title_bar_height = (window_rect.bottom - window_rect.top) - (client_rect.bottom - client_rect.top);
+
+    // RECT client_rect;
+    // if (!GetClientRect(hwnd, &client_rect)) {
+    //     std::cout << "Failed to get client rectangle." << std::endl;
+    //     return nullptr;
+    // }
     int width = client_rect.right - client_rect.left;
     int height = client_rect.bottom - client_rect.top;
 
@@ -143,8 +150,36 @@ HBITMAP ScreenGrabber::grabPrintWindow() {
     DeleteDC(hdc_mem_dc);
     ReleaseDC(NULL, hdc_screen);
 
+    // CROPPING OUT TITLE BAR:
+    HBITMAP hbm_cropped = cropTitleBar(hbm_capture, title_bar_height);
+    // Delete OG HBITMAP:
+    DeleteObject(hbm_capture);
+
     std::cout << "Screen successfully captured using PrintWindow." << std::endl;
-    return hbm_capture;
+    return hbm_cropped;
+}
+
+HBITMAP ScreenGrabber::cropTitleBar(HBITMAP &hbm_screen, int title_bar_height) {
+    
+    BITMAP bmp;
+    GetObject(hbm_screen, sizeof(BITMAP), &bmp);
+    int new_bmp_height = bmp.bmHeight - title_bar_height;
+
+    HDC hdc_screen = GetDC(NULL);
+    HDC hdc_mem_dc = CreateCompatibleDC(hdc_screen);
+    HBITMAP hbm_cropped = CreateCompatibleBitmap(hdc_screen, bmp.bmWidth, new_bmp_height);
+    SelectObject(hdc_mem_dc, hbm_cropped);
+
+    HDC hdc_capture = CreateCompatibleDC(hdc_screen);
+    SelectObject(hdc_capture, hbm_screen);
+    BitBlt(hdc_mem_dc, 0, 0, bmp.bmWidth, new_bmp_height, hdc_capture, 0, title_bar_height, SRCCOPY);
+
+    // Cleanup
+    DeleteDC(hdc_capture);
+    DeleteDC(hdc_mem_dc);
+    ReleaseDC(NULL, hdc_screen);
+
+    return hbm_cropped;
 }
 
 HBITMAP ScreenGrabber::grabScreenViaDesktop() {

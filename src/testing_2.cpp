@@ -48,12 +48,12 @@ int main() {
         return -1;
     }
 
-    // ========= BaseProcessor setup =========
-    // BaseProcessor base_processor;
-    // if (!base_processor.updateCurrentBitmap(bmp_filename)) {
-    //     std::cout << "Main: Failed to update bmp in base processor." << std::endl;
-    //     return -1;
-    // }
+    //========= BaseProcessor setup =========
+    BaseProcessor base_processor;
+    if (!base_processor.updateCurrentBitmap(bmp_filename)) {
+        std::cout << "Main: Failed to update bmp in base processor." << std::endl;
+        return -1;
+    }
 
 
     return 0;
