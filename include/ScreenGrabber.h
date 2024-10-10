@@ -8,8 +8,6 @@ class ScreenGrabber {
     HWND overlay_hwnd;
     
 public:
-    // Public attributes
-    
     // Constructor and destructor
     ScreenGrabber();
     ~ScreenGrabber();
