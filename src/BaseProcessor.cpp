@@ -8,7 +8,11 @@
 BaseProcessor::BaseProcessor() 
 : curr_bmp(), base_info() {
     regions = {
-        {"GOLD AVAILABLE", {5, 50, 15, 20}} // Dummy example
+        {"GOLD TOTAL", {4, 12, 10, 15}}, 
+        {"ELIXIR TOTAL", {4, 12, 15, 20}}, 
+        {"DARK TOTAL", {4, 12, 20, 24}}, 
+        {"TROPHIES WIN", {4, 8, 26, 31}}, 
+        {"TROPHIES LOSE", {4, 8, 34, 39}} 
     };
 }
 
@@ -28,4 +32,6 @@ bool BaseProcessor::updateCurrentBitmap(const std::string &new_bmp_path) {
     cv::waitKey(5000);
     cv::destroyWindow("Current Bmp");
 }
+
+
 
