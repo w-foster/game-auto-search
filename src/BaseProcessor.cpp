@@ -68,7 +68,6 @@ bool BaseProcessor::preprocessBitmap(std::string transformation_type) {
 }
 
 void BaseProcessor::setSuitableMetricRanges(int min_gold, int min_elixir, int min_dark, int min_trophies_win, int max_trophies_lose) {
-    // std::unordered_map<std::string, std::pair<int, int>> suitable_metric_ranges
     suitable_metric_ranges["GOLD TOTAL"] = min_gold;
     suitable_metric_ranges["ELIXIR TOTAL"] = min_elixir;
     suitable_metric_ranges["DARK TOTAL"] = min_dark;
@@ -151,7 +150,6 @@ int BaseProcessor::processMetricText(std::string region_name, std::string &text)
     }
 
     // Remove non-int chars:
-    // ints ACSII: 48 to 57 inclusive
     int i = 0;
     while (i < text.size()) {
         char ch = text[i];
@@ -164,7 +162,7 @@ int BaseProcessor::processMetricText(std::string region_name, std::string &text)
 
     std::cout << "Cleaned text: " << text << std::endl;
     if (text.size() == 0) {
-        std::cout << "Cleaned text is empty :(" << std::endl;
+        std::cout << "Cleaned text is empty." << std::endl;
         return -1;
     }
 
