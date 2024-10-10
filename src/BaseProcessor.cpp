@@ -51,9 +51,9 @@ bool BaseProcessor::updateCurrentBitmap(const std::string &new_bmp_path) {
     //preprocessBitmap("GRAYSCALE");
     //preprocessBitmap("CONTRAST");
 
-    cv::imshow("Current Bmp", curr_bmp);
-    cv::waitKey(5000);
-    cv::destroyWindow("Current Bmp");
+    //cv::imshow("Current Bmp", curr_bmp);
+    //cv::waitKey(5000);
+    //cv::destroyWindow("Current Bmp");
     return true;
 }
 
@@ -99,9 +99,9 @@ bool BaseProcessor::readRegion(std::string region_name) {
     // Create a REFERENCE to the region of interest within the bitmap:
     cv::Mat region = curr_bmp(region_rect);
 
-    cv::imshow("ROI", region);
-    cv::waitKey(10000);
-    cv::destroyWindow("ROI");
+    //cv::imshow("ROI", region);
+    //cv::waitKey(10000);
+    //cv::destroyWindow("ROI");
 
     // Initialise Tesseract API
     tesseract::TessBaseAPI ocr;
