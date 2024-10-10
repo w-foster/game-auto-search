@@ -27,7 +27,6 @@ ScreenGrabber::~ScreenGrabber() {
 
 bool ScreenGrabber::initialiseGrabber(LPCSTR window_title) {
     hwnd = FindWindowA(NULL, window_title);
-    //hwnd = (HWND)0x000806C0; // using handle directly, for testing
     if (!hwnd) {
         std::cout << "Window not found!" << std::endl;
         return false;
@@ -122,11 +121,6 @@ HBITMAP ScreenGrabber::grabPrintWindow() {
     }
     int title_bar_height = (window_rect.bottom - window_rect.top) - (client_rect.bottom - client_rect.top);
 
-    // RECT client_rect;
-    // if (!GetClientRect(hwnd, &client_rect)) {
-    //     std::cout << "Failed to get client rectangle." << std::endl;
-    //     return nullptr;
-    // }
     int width = client_rect.right - client_rect.left;
     int height = client_rect.bottom - client_rect.top;
 
@@ -146,13 +140,13 @@ HBITMAP ScreenGrabber::grabPrintWindow() {
         return nullptr;
     }
 
-    // Clean up
+    // Cleanup
     DeleteDC(hdc_mem_dc);
     ReleaseDC(NULL, hdc_screen);
 
-    // CROPPING OUT TITLE BAR:
+    // Cropping out the title bar
     HBITMAP hbm_cropped = cropTitleBar(hbm_capture, title_bar_height);
-    // Delete OG HBITMAP:
+    // Delete original (non-cropped) bitmap
     DeleteObject(hbm_capture);
 
     std::cout << "Screen successfully captured using PrintWindow." << std::endl;
