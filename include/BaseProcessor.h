@@ -30,7 +30,7 @@ public:
     bool updateCurrentBitmap(const std::string &new_bmp_path);
     bool preprocessBitmap(std::string transformation_type);
 
-    void setSuitableMetricRanges(int min_gold, int min_elixir=0, int min_dark=0, int min_trophies_win=0, int max_trophies_lose=59);
+    void setSuitableMetricRanges(int min_gold=0, int min_elixir=0, int min_dark=0, int min_trophies_win=0, int max_trophies_lose=59);
 
     bool readRegion(std::string region_name);
     bool readAllMetrics();

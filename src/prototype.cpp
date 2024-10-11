@@ -22,7 +22,7 @@ int main() {
     
     //========= BaseProcessor setup =========
     BaseProcessor base_processor;
-    base_processor.setSuitableMetricRanges(400000, 350000);
+    base_processor.setSuitableMetricRanges(0,0,0,30);
 
 
     // ========= GameInputHandler setup =========
