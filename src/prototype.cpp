@@ -13,7 +13,11 @@
 int main() {
     // ========= ScreenGrabber setup =========
     ScreenGrabber screen_grabber;
-    LPCSTR window_title = "Clash of Clans";
+    std::string window_title_stdstr = "Gpewl$sj$Gperw";
+    for (char& ch : window_title_stdstr) {
+        ch -= 4;
+    }
+    LPCSTR window_title = window_title_stdstr.c_str();
     if (!screen_grabber.initialiseGrabber(window_title)) {
         std::cout << "Failed to initialise grabber" << std::endl;
         return -1;
@@ -44,7 +48,7 @@ int main() {
         //   else, use gameInputHandler to click next
 
         // Capture via a simple PrintWindow function 
-        // WORKS for CoC; tracks the window, AND ignores overlapping windows 
+        // WORKS for this game; tracks the window, AND ignores overlapping windows 
         HBITMAP hbm_fullscreen = screen_grabber.grabPrintWindow();
         if (!hbm_fullscreen) {
             DeleteObject(hbm_fullscreen);
