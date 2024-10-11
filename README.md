@@ -1,4 +1,4 @@
-**AutoSearch Tool for Clash of Clans**
+**AutoSearch Tool for Popular Strategy Game**
 
 **OOD:** <br/>
 ScreenGrabber class:
@@ -31,7 +31,7 @@ Check if base found:
 **Current Status:** <br/>
 - Prototype is working (testing_2.cpp). Successfully finds a suitable base, based on pre-set suitability parameters!
 
-- The screengrabs are dependent on the native desktop resolution, and the CoC via Play Games seems somewhat blurry; this double-effect means that processing the images successfully will depend on, for example, the text being intelligible
+- The screengrabs are dependent on the native desktop resolution, and the game version used seems somewhat blurry; this double-effect means that processing the images successfully will depend on, for example, the text being intelligible
   - A potential solution is 1) having the window maximised, or 2) zooming in somewhat, either i) still in a fixed position, or ii) in multiple positions, changing position if the target in-game objects/text cannot be found
   - 2)ii) is more complex, but would allow more flexibility for the window's size.
   - Alternatively, the window could be maximised but hidden, as the ScreenGrabber successfully grabs even when the window is off-screen or obscured
