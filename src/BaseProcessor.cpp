@@ -12,11 +12,11 @@
 BaseProcessor::BaseProcessor() 
 : curr_bmp(), base_metrics(), suitable_metric_ranges(),  
     regions{
-        {"GOLD TOTAL", {4.5, 12, 10.25, 15}}, 
-        {"ELIXIR TOTAL", {4.5, 12, 15, 20}}, 
-        {"DARK TOTAL", {4.5, 12, 20, 24}}, 
-        {"TROPHIES WIN", {4.5, 8, 26, 31}}, 
-        {"TROPHIES LOSE", {4.5, 8, 34, 39}}
+        {"GOLD TOTAL", {4.75, 12, 10.25, 15}}, 
+        {"ELIXIR TOTAL", {4.75, 12, 15, 20}}, 
+        {"DARK TOTAL", {4.75, 12, 20, 24}}, 
+        {"TROPHIES WIN", {4.75, 8, 26, 31}}, 
+        {"TROPHIES LOSE", {4.75, 8, 34, 39}}
     },
 
     ordered_region_keys{
