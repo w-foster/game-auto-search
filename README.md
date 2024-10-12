@@ -1,4 +1,5 @@
-**AutoSearch Tool for Popular Strategy Game**
+**AutoSearch Tool for Popular Strategy Game**<br/>
+_For fun only... do not use._
 
 **OOD:** <br/>
 ScreenGrabber class:
